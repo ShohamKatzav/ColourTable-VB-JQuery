@@ -22,8 +22,10 @@ Public Class Startup
             Throw New InvalidOperationException("FrontendUri is not configured.")
         End If
 
-        ' services.AddScoped(Of ColourDatabase)()
-        ' services.AddScoped(Of ColourService)()
+        services.AddScoped(Of ColourDatabase)(Function(provider) 
+                                              Return New ColourDatabase(_configuration)
+                                          End Function)
+        services.AddScoped(Of ColourService)()
         services.AddScoped(Of HelloWorldService)()
 
         services.AddCors(Sub(options)

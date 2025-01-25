@@ -2,30 +2,30 @@ Imports System
 Imports System.Configuration
 Imports Microsoft.Data.SqlClient
 Imports ColoursTable.Models
+Imports Microsoft.Extensions.Configuration
 
 Namespace DataAccess
     Public Class ColourDatabase
+
+        Private ReadOnly _configuration As IConfiguration
         Private connectionString As String
+        Private providerName As String
 
-        Public Sub New()
+        Public Sub New(configuration As IConfiguration)
 
-            Dim config _
-            As System.Configuration.Configuration = _
-            ConfigurationManager.OpenExeConfiguration( _
-            ConfigurationUserLevel.None)
+            _configuration = configuration
 
-            ' Get the conectionStrings section.
-            Dim csSection _
-            As ConnectionStringsSection = _
-            config.ConnectionStrings
+            ' Load the connection string and provider name from the appsettings.json file
+            connectionString = _configuration.GetSection("DbConnection:DefaultConnection").Value
+            ' providerName = _configuration.GetSection("DbConnection:providerName").Value
 
-            Dim cs As ConnectionStringSettings = _
-            csSection.ConnectionStrings("DbConnection")
-            If cs IsNot Nothing AndAlso Not String.IsNullOrEmpty(cs.ConnectionString) Then
-                connectionString = cs.ConnectionString
-            Else
-                Throw New Exception("Connection string 'DbConnection' not found or is invalid.")
+            If String.IsNullOrWhiteSpace(connectionString) Then
+                Throw New InvalidOperationException("Connection string 'DbConnection' not configured.")
             End If
+
+            ' If String.IsNullOrWhiteSpace(providerName) Then
+            '     Throw New InvalidOperationException("Provider name 'DbConnection:providerName' not configured.")
+            ' End If
 
         End Sub
 
