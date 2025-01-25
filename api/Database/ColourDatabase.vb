@@ -56,18 +56,20 @@ Namespace DataAccess
             End Using
         End Function
 
-        Public Function GetColourCount(ColourName As String) As Integer
+        Public Function GetColourCount(ColourName As String, ViewOrder As Integer) As Integer
 
 
             Dim count As Integer = 0   
             Dim queryString As String = _
                 "SELECT COUNT(ColourName) FROM dbo.Colours " & _
-                "WHERE ColourName = @ColourName"
+                "WHERE ColourName = @ColourName OR " & _
+                "ViewOrder = @ViewOrder"
 
             Using connection As New SqlConnection(connectionString)
 
                 Dim command As New SqlCommand(queryString, connection)
                 command.Parameters.AddWithValue("@ColourName", ColourName)
+                command.Parameters.AddWithValue("@ViewOrder", ViewOrder)
 
                 Try
                     connection.Open()

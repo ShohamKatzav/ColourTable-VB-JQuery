@@ -23,11 +23,11 @@ Namespace Services
         Public Function AddColour(ColourName As String, Price As Integer,
                                     ViewOrder As Integer, Available As Boolean) As OperationResult
             Try
-                Dim Exist As Integer = _colourDatabase.GetColourCount(ColourName)
+                Dim Exist As Integer = _colourDatabase.GetColourCount(ColourName, ViewOrder)
                 If Exist <> 0 Then
                     Return New OperationResult With {
                         .Success = False,
-                        .Message = "Colour Already Added"
+                        .Message = "Colour name Already Added Or View Order Already exists"
                     }
                 End If
                 If Not (TypeOf ColourName Is String) OrElse ColourName Is Nothing OrElse String.IsNullOrEmpty(ColourName) OrElse _
@@ -64,8 +64,8 @@ Namespace Services
         Public Function UpdateColour(ColourName As String, Price As Integer,
                                     ViewOrder As Integer, Available As Boolean, OldColourName As String) As OperationResult
             Try
-                Dim Exist As Integer = _colourDatabase.GetColourCount(OldColourName)
-                Dim Duplicate As Integer = _colourDatabase.GetColourCount(ColourName)
+                Dim Exist As Integer = _colourDatabase.GetColourCount(OldColourName, ViewOrder)
+                Dim Duplicate As Integer = _colourDatabase.GetColourCount(ColourName, ViewOrder)
                 If Duplicate > 0 AndAlso OldColourName <> ColourName Then
                     Return New OperationResult With {
                         .Success = False,
