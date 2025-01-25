@@ -9,6 +9,11 @@ Module Program
 
     Function CreateHostBuilder(args As String()) As IHostBuilder
         Return Host.CreateDefaultBuilder(args).
+            ConfigureAppConfiguration(Sub(context, config)
+                                          config.AddJsonFile("appsettings.json", optional:=True, reloadOnChange:=True)
+                                          config.AddJsonFile($"appsettings.{context.HostingEnvironment.EnvironmentName}.json", optional:=True)
+                                          config.AddEnvironmentVariables()
+                                      End Sub).
             ConfigureWebHostDefaults(Sub(webBuilder)
                                          webBuilder.UseStartup(Of Startup)() _
                                          .UseUrls("http://localhost:5000")
