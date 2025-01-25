@@ -142,5 +142,3 @@ C:\Users\Shoham\Desktop\WEB\VB\ColoursTable\ColoursTable\api\obj\Debug\net9.0\st
 C:\Users\Shoham\Desktop\WEB\VB\ColoursTable\ColoursTable\api\obj\Debug\net9.0\ColoursT.6C84413A.Up2Date
 C:\Users\Shoham\Desktop\WEB\VB\ColoursTable\ColoursTable\api\obj\Debug\net9.0\ColoursTable.genruntimeconfig.cache
 C:\Users\Shoham\Desktop\WEB\VB\ColoursTable\ColoursTable\api\obj\Debug\net9.0\ref\ColoursTable.dll
-C:\Users\Shoham\Desktop\WEB\VB\ColoursTable\ColoursTable\api\bin\Debug\net9.0\web.config
-C:\Users\Shoham\Desktop\WEB\VB\ColoursTable\ColoursTable\api\bin\Debug\net9.0\Newtonsoft.Json.dll
