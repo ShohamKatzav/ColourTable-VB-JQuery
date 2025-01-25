@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Shoham\\Desktop\\WEB - After hackerU\\VB\\ColoursTable\\api\\ColoursTable.vbproj": {}
+    "C:\\Users\\Shoham\\Desktop\\WEB\\VB\\ColoursTable\\ColoursTable\\api\\ColoursTable.vbproj": {}
   },
   "projects": {
-    "C:\\Users\\Shoham\\Desktop\\WEB - After hackerU\\VB\\ColoursTable\\api\\ColoursTable.vbproj": {
+    "C:\\Users\\Shoham\\Desktop\\WEB\\VB\\ColoursTable\\ColoursTable\\api\\ColoursTable.vbproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Shoham\\Desktop\\WEB - After hackerU\\VB\\ColoursTable\\api\\ColoursTable.vbproj",
+        "projectUniqueName": "C:\\Users\\Shoham\\Desktop\\WEB\\VB\\ColoursTable\\ColoursTable\\api\\ColoursTable.vbproj",
         "projectName": "ColoursTable",
-        "projectPath": "C:\\Users\\Shoham\\Desktop\\WEB - After hackerU\\VB\\ColoursTable\\api\\ColoursTable.vbproj",
+        "projectPath": "C:\\Users\\Shoham\\Desktop\\WEB\\VB\\ColoursTable\\ColoursTable\\api\\ColoursTable.vbproj",
         "packagesPath": "C:\\Users\\Shoham\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Shoham\\Desktop\\WEB - After hackerU\\VB\\ColoursTable\\api\\obj\\",
+        "outputPath": "C:\\Users\\Shoham\\Desktop\\WEB\\VB\\ColoursTable\\ColoursTable\\api\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -53,6 +53,34 @@
             "Microsoft.Data.SqlClient": {
               "target": "Package",
               "version": "[6.0.0-preview3.24332.3, )"
+            },
+            "Microsoft.Extensions.Configuration": {
+              "target": "Package",
+              "version": "[9.0.1, )"
+            },
+            "Microsoft.Extensions.Configuration.Abstractions": {
+              "target": "Package",
+              "version": "[9.0.1, )"
+            },
+            "Microsoft.Extensions.Configuration.EnvironmentVariables": {
+              "target": "Package",
+              "version": "[9.0.1, )"
+            },
+            "Microsoft.Extensions.Configuration.Json": {
+              "target": "Package",
+              "version": "[9.0.1, )"
+            },
+            "Microsoft.Extensions.Hosting": {
+              "target": "Package",
+              "version": "[9.0.1, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[13.0.3, )"
+            },
+            "Swashbuckle.AspNetCore": {
+              "target": "Package",
+              "version": "[5.6.3, )"
             },
             "System.Configuration.ConfigurationManager": {
               "target": "Package",

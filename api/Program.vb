@@ -10,18 +10,15 @@ Module Program
 
     Function CreateHostBuilder(args As String()) As IHostBuilder
         Return Host.CreateDefaultBuilder(args).
-            ConfigureWebHostDefaults(Sub(webBuilder)
-                                         webBuilder.UseStartup(Of Startup)() _
-                                         .UseUrls("http://localhost:5000")
-                                     End Sub).
             ConfigureAppConfiguration(Function(hostContext, config)
-                                          ' Add appsettings.json and environment-specific JSON files
                                           config.AddJsonFile("appsettings.json", optional:=True, reloadOnChange:=True)
                                           config.AddJsonFile($"appsettings.{hostContext.HostingEnvironment.EnvironmentName}.json", optional:=True)
-
-                                          ' Add Azure environment variables
                                           config.AddEnvironmentVariables()
                                           Return config.Build()
-                                      End Function)
+                                      End Function).
+            ConfigureWebHostDefaults(Sub(webBuilder)
+                                          webBuilder.UseStartup(Of Startup)() _
+                                          .UseUrls("http://localhost:5000")
+                                     End Sub)
     End Function
 End Module
