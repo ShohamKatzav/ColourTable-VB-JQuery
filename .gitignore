@@ -1,0 +1,28 @@
+# Ignore the build output
+/bin/
+/obj/
+
+# Ignore user-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Ignore appsettings files
+appsettings.json
+appsettings.Development.json
+appsettings.Production.json
+app.config
+
+# Ignore jsconfig files
+jsconfig.json
+config.js
+
+# Ignore other common files
+*.log
+*.vspscc
+*.vssscc
+.idea/
+
+# Ignore other common folders
+.vscode/

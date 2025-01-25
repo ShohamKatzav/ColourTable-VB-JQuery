@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link href="style.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.dataTables.css" />
+    <script type="module" src="/config.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <script src="https://code.jquery.com/ui/1.14.1/jquery-ui.js"></script>
+    <script src="https://cdn.datatables.net/2.1.8/js/dataTables.js"></script>
+    <script type="module">
+      import SERVER_URI from '/config.js';
+      const actionUrl = SERVER_URI;
+      $(document).ready(function () {
+        const table = $('#myTable').DataTable(
+          {
+            columns: [
+              { data: 'colourName' },
+              { data: 'price' },
+              {
+                data: 'viewOrder',
+                defaultContent: '<li<span></span></li>',
+              },
+              { data: 'available' },
+              {
+                data: null,
+                defaultContent: '<button class="update-element">Update</button><button>Delete</button>',
+              }
+            ],
+            order: [[2, 'asc']]
+          });
+        $.ajax({
+          url: actionUrl,
+          type: "GET",
+          success: function (data) {
+            table.
+              clear()
+              .rows.add(data)
+              .draw();
+          },
+          error: function (xhr, status, error) {
+            console.error("Getting data failed:", error);
+          }
+        });
+        table.on('click', 'button', function (e) {
+          let oldData = table.row(e.target.closest('tr')).data();
+          if (e.target.innerHTML == 'Delete')
+            $.ajax({
+              url: actionUrl,
+              type: "DELETE",
+              contentType: "application/json",
+              data: JSON.stringify(oldData.colourName),
+              success: function (data) {
+                table
+                  .row($(e.target).closest('tr'))
+                  .remove()
+                  .draw();
+              },
+              error: function (xhr, status, error) {
+                console.error("Delete failed:", error);
+              }
+            });
+          else if (e.target.innerHTML == 'Update') {
+            $('.update-element').html('Update');
+            $('tr').removeClass('yellow-background');
+            localStorage.setItem("oldName", oldData.colourName);
+            $('input#ColourName').val(oldData.colourName);
+            $('input#Price').val(oldData.price);
+            $('input#ViewOrder').val(oldData.viewOrder);
+            $("input#Available").prop("checked", oldData.available);
+            e.target.innerHTML = 'Cancel Update'
+            e.target.closest('tr').classList.add('yellow-background');
+          }
+          else if (e.target.innerHTML == 'Cancel Update') {
+            localStorage.removeItem("oldName");
+            const form = $("#myForm");
+            form[0].reset();
+            e.target.innerHTML = 'Update'
+            e.target.closest('tr').classList.remove('yellow-background');
+          }
+        });
+
+        $("#updateButton").click(function (e) {
+          e.preventDefault();
+          const form = $("#myForm");
+          const colourData = {
+            ColourName: $("#ColourName").val(),
+            Price: Number($("#Price").val()),
+            ViewOrder: Number($("#ViewOrder").val()),
+            Available: $("#Available").prop("checked"),
+            OldColourName: localStorage.getItem("oldName")
+          };
+          $.ajax({
+            headers: {
+              "Accept": "*/*",
+              "Content-Type": "application/json"
+            },
+            url: actionUrl,
+            type: 'PUT',
+            contentType: 'application/json',
+            data: JSON.stringify(colourData),
+            success: function (response) {
+
+              $('.update-element').html('Update');
+              $('tr').removeClass('yellow-background');
+
+              let rowIndex = table
+                .rows()
+                .indexes()
+                .toArray()
+                .find(index => table.row(index).data().colourName === localStorage.getItem("oldName"));
+
+              if (rowIndex !== undefined) {
+                table
+                  .row(rowIndex)
+                  .data({
+                    colourName: response.colourName,
+                    price: response.price,
+                    viewOrder: response.viewOrder,
+                    available: response.available
+                  })
+                  .draw(false);
+              } else {
+                console.warn("Row not found for update");
+              }
+
+              form[0].reset();
+            },
+            error: function (result) {
+              alert(result.responseText);
+            }
+          });
+        })
+
+        $("#myForm").submit(function (e) {
+          e.preventDefault();
+          const form = $(this);
+          const colourData = {
+            ColourName: $("#ColourName").val(),
+            Price: Number($("#Price").val()),
+            ViewOrder: Number($("#ViewOrder").val()),
+            Available: $("#Available").prop("checked"),
+          };
+          $.ajax({
+            headers: {
+              "Accept": "*/*",
+              "Content-Type": "application/json"
+            },
+            url: actionUrl,
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(colourData),
+            success: function (response) {
+              if (!response) {
+                alert("Make sure your colour isn't already in the list")
+                return
+              }
+              table.row.add({
+                colourName: response.colourName,
+                price: response.price,
+                viewOrder: response.viewOrder,
+                available: response.available,
+              }).draw();
+
+              form[0].reset();
+            },
+            error: function (result) {
+              alert(result.responseText);
+            }
+          });
+        });
+      });
+
+      $(function () {
+        $("#sortable").sortable({
+          stop: function (event, ui) {
+
+            const $rows = $("#myTable tbody tr");
+            const draggedIndex = ui.item.index();
+            const draggedRow = ui.item;
+
+            // line dropped to the last position
+            if (draggedIndex === $rows.length - 1) {
+
+              const previousRow = $rows.eq(draggedIndex - 1);
+              const previousViewOrder = parseInt(previousRow.find("td").eq(2).text(), 10);
+
+              const colourName = draggedRow.find("td").eq(0).text();
+              const newPosition = previousViewOrder + 1;
+
+              draggedRow.find("td").eq(2).text(newPosition);
+
+              updateColorPositionInDB(colourName, Number(newPosition));
+
+              // line dropped to the first/middle position
+            } else {
+              // update dragged row
+              const nextRow = $rows.eq(draggedIndex + 1);
+              const nextViewOrder = parseInt(nextRow.find("td").eq(2).text(), 10);
+
+              draggedRow.find("td").eq(2).text(nextViewOrder);
+
+              updateColorPositionInDB(draggedRow.find("td").eq(0).text(), Number(draggedRow.find("td").eq(2).text()));
+
+              // update next rows
+              $rows.each(function (index) {
+                if (index > draggedIndex) {
+                  const colourName = $(this).find("td").eq(0).text();
+                  const currentViewOrder = parseInt($(this).find("td").eq(2).text(), 10);
+                  const newPosition = currentViewOrder + 1;
+                  $(this).find("td").eq(2).text(newPosition);
+
+                  updateColorPositionInDB(colourName, newPosition);
+                }
+              });
+            }
+          },
+        });
+      });
+      function updateColorPositionInDB(colourName, newPosition) {
+        const actionUrl = SERVER_URI + '/position';
+        const colourData = {
+          ColourName: colourName,
+          ViewOrder: Number(newPosition),
+        };
+        $.ajax({
+          headers: {
+            "Accept": "*/*",
+            "Content-Type": "application/json"
+          },
+          url: actionUrl,
+          type: 'PUT',
+          contentType: 'application/json',
+          data: JSON.stringify(colourData),
+          error: function (status, error) {
+            alert(error);
+          }
+        });
+      }
+    </script>
+  </head>
+
+  <body>
+    <table id="myTable" class="display">
+      <thead>
+        <tr>
+          <th>Colour Name</th>
+          <th>Price</th>
+          <th>View Order</th>
+          <th>Available</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="sortable" class="display">
+      </tbody>
+    </table>
+    <form id="myForm">
+      <label for="ColourName" class="tab4">Colour Name:</label>
+      <input type="text" id="ColourName" name="ColourName"> </br></br>
+      <label for="Price" class="tab4">Price:</label>
+      <input type="number" id="Price" name="Price" class="tab4"> </br></br>
+      <label for="ViewOrder" class="tab4">View Order:</label>
+      <input type="number" id="ViewOrder" name="ViewOrder" class="tab4"> </br></br>
+      <label for="Available" class="tab4">Available:</label>
+      <input type="checkbox" id="Available" name="Available"> </br></br>
+      <input type="submit" id="submitButton" value="Add" class="tab4">
+      <input type="button" id="updateButton" value="Update">
+    </form>
+  </body>
+
+</html>
