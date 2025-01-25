@@ -15,17 +15,11 @@ Namespace DataAccess
 
             _configuration = configuration
 
-            ' Load the connection string and provider name from the appsettings.json file
-            connectionString = _configuration.GetSection("DbConnection:DefaultConnection").Value
-            ' providerName = _configuration.GetSection("DbConnection:providerName").Value
+            connectionString = _configuration.GetConnectionString("DbConnection")
 
             If String.IsNullOrWhiteSpace(connectionString) Then
                 Throw New InvalidOperationException("Connection string 'DbConnection' not configured.")
             End If
-
-            ' If String.IsNullOrWhiteSpace(providerName) Then
-            '     Throw New InvalidOperationException("Provider name 'DbConnection:providerName' not configured.")
-            ' End If
 
         End Sub
 
