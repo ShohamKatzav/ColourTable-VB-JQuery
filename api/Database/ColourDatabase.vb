@@ -2,6 +2,7 @@ Imports System
 Imports System.Configuration
 Imports Microsoft.Data.SqlClient
 Imports ColoursTable.Models
+Imports ColoursTable.DTO
 Imports Microsoft.Extensions.Configuration
 
 Namespace DataAccess
@@ -56,26 +57,42 @@ Namespace DataAccess
             End Using
         End Function
 
-        Public Function GetColourCount(ColourName As String, ViewOrder As Integer) As Integer
+        Public Function GetColourCount(ColourName As String, ViewOrder As Integer, Optional OldColourName As String = "") As DuplicateColourCheckResult
 
-
-            Dim count As Integer = 0   
-            Dim queryString As String = _
+            Dim nameCount As Integer = 0
+            Dim viewOrderCount As Integer = 0   
+            Dim nameQueryString As String = _
                 "SELECT COUNT(ColourName) FROM dbo.Colours " & _
-                "WHERE ColourName = @ColourName OR " & _
+                "WHERE ColourName = @ColourName"
+            Dim viewOrderQueryString As String = ""
+            If Not(String.IsNullOrWhiteSpace(OldColourName)) Then
+                viewOrderQueryString = _
+                "SELECT COUNT(ColourName) FROM dbo.Colours " & _
+                "WHERE ColourName <> @OldColourName AND " & _
                 "ViewOrder = @ViewOrder"
+            Else
+                viewOrderQueryString = _
+                "SELECT COUNT(ColourName) FROM dbo.Colours " & _
+                "WHERE ViewOrder = @ViewOrder"
+            End If
 
             Using connection As New SqlConnection(connectionString)
 
-                Dim command As New SqlCommand(queryString, connection)
-                command.Parameters.AddWithValue("@ColourName", ColourName)
-                command.Parameters.AddWithValue("@ViewOrder", ViewOrder)
+                Dim nameCommand As New SqlCommand(nameQueryString, connection)
+                Dim viewOrderCommand As New SqlCommand(viewOrderQueryString, connection)
+                nameCommand.Parameters.AddWithValue("@ColourName", ColourName)
+                viewOrderCommand.Parameters.AddWithValue("@OldColourName", OldColourName)
+                viewOrderCommand.Parameters.AddWithValue("@ViewOrder", ViewOrder)
 
                 Try
                     connection.Open()
-                    count = command.ExecuteScalar()
+                    nameCount = nameCommand.ExecuteScalar()
+                    viewOrderCount = viewOrderCommand.ExecuteScalar()
                     
-                    Return count
+                    Return New DuplicateColourCheckResult() With {
+                        .DuplicateName = nameCount,
+                        .DuplicateViewOrder = viewOrderCount
+                    }
 
                 Catch ex As Exception
                     Console.WriteLine(ex.Message)

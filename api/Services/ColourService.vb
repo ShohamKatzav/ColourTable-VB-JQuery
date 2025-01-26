@@ -23,11 +23,17 @@ Namespace Services
         Public Function AddColour(ColourName As String, Price As Integer,
                                     ViewOrder As Integer, Available As Boolean) As OperationResult
             Try
-                Dim Exist As Integer = _colourDatabase.GetColourCount(ColourName, ViewOrder)
-                If Exist <> 0 Then
+                Dim Exist As DuplicateColourCheckResult = _colourDatabase.GetColourCount(ColourName, ViewOrder)
+                If Exist.DuplicateName <> 0 Then
                     Return New OperationResult With {
                         .Success = False,
-                        .Message = "Colour name Already Added Or View Order Already exists"
+                        .Message = "Colour name already added"
+                    }
+                End If
+                If Exist.DuplicateViewOrder <> 0 Then
+                    Return New OperationResult With {
+                        .Success = False,
+                        .Message = "Colour with same view order already exists"
                     }
                 End If
                 If Not (TypeOf ColourName Is String) OrElse ColourName Is Nothing OrElse String.IsNullOrEmpty(ColourName) OrElse _
@@ -64,12 +70,18 @@ Namespace Services
         Public Function UpdateColour(ColourName As String, Price As Integer,
                                     ViewOrder As Integer, Available As Boolean, OldColourName As String) As OperationResult
             Try
-                Dim Exist As Integer = _colourDatabase.GetColourCount(OldColourName, ViewOrder)
-                Dim Duplicate As Integer = _colourDatabase.GetColourCount(ColourName, ViewOrder)
-                If Duplicate > 0 AndAlso OldColourName <> ColourName Then
+                Dim Exist As DuplicateColourCheckResult = _colourDatabase.GetColourCount(OldColourName, ViewOrder)
+                Dim Duplicate As DuplicateColourCheckResult = _colourDatabase.GetColourCount(ColourName, ViewOrder, OldColourName)
+                If Duplicate.DuplicateName > 0 AndAlso OldColourName <> ColourName Then
                     Return New OperationResult With {
                         .Success = False,
                         .Message = "Could not update. Colour with this name is already exist"
+                    }
+                End If
+                If Duplicate.DuplicateViewOrder > 0 Then
+                    Return New OperationResult With {
+                        .Success = False,
+                        .Message = "Could not update. Colour with the same view order exist"
                     }
                 End If
                 If Not (TypeOf ColourName Is String) OrElse ColourName Is Nothing OrElse String.IsNullOrEmpty(ColourName) OrElse _
@@ -81,7 +93,7 @@ Namespace Services
                             .Message = "Invalid Input"
                         }
                 End If
-                If Exist = 0 Then
+                If Exist.DuplicateName = 0 Then
                     Return New OperationResult With {
                         .Success = False,
                         .Message = "Colour Isn't Exist"
