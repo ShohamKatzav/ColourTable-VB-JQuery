@@ -1,11 +1,3 @@
-.tab4 {
-    margin-right: 8px;
-  }
-
-  .yellow-background {
-    background-color: yellow !important;
-  }
-
   #sortable {
     list-style-type: none;
     margin: 0;
@@ -24,4 +16,19 @@
   #sortable li span {
     position: absolute;
     margin-left: -1.3em;
+  }
+
+  .yellow-background {
+    background-color: #fff3cd !important;
+    --bs-table-bg: #fff3cd !important;
+    --bs-table-hover-bg: #e5d96a !important;
+  }
+
+  body {
+    background-color: #f4f6f9;
+  }
+
+  .table-hover tbody tr:hover {
+    background-color: #e2e6ea;
+    cursor: move;
   }
