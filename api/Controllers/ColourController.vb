@@ -65,9 +65,9 @@ Public Class ColourController
         If colour Is Nothing Then
             Return BadRequest("Invalid colour data")
         End If
-        Dim result As Boolean = _colourService.UpdateColourPosition(colour.ColourName, colour.ViewOrder)
-        If result Then
-            Return Ok($"Colour '{colour.ColourName}' position changed successfully.")
+        Dim result = _colourService.UpdateColourPosition(colour.ColourName, colour.ViewOrder)
+        If result.Success Then
+            Return Ok(result.Colour)
         Else
             Return NotFound($"Colour '{colour.ColourName}' not found.")
         End If

@@ -193,7 +193,7 @@ Namespace DataAccess
             End Using
         End Function
 
-        Public Function UpdateColourPosition(ColourName As String, ViewOrder As Integer) As Boolean
+        Public Function UpdateColourPosition(ColourName As String, ViewOrder As Integer) As Colour
 
             Dim queryString As String =
             "UPDATE dbo.Colours " &
@@ -209,7 +209,10 @@ Namespace DataAccess
                 Try
                     connection.Open()
                     Dim rowsAffected As Integer = command.ExecuteNonQuery()
-                    Return rowsAffected > 0
+                    Return New Colour() With {
+                        .ColourName = ColourName,
+                        .ViewOrder = ViewOrder
+                    }
 
                 Catch ex As Exception
                     Console.WriteLine(ex.Message)

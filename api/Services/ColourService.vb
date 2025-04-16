@@ -112,11 +112,19 @@ Namespace Services
             End Try
         End Function
 
-        Public Function UpdateColourPosition(ColourName As String, ViewOrder As Integer) As Boolean
+        Public Function UpdateColourPosition(ColourName As String, ViewOrder As Integer) As OperationResult
             Try
-                Return _colourDatabase.UpdateColourPosition(ColourName, ViewOrder)
+                Dim updatedColour = _colourDatabase.UpdateColourPosition(ColourName, ViewOrder)
+                Return New OperationResult With {
+                    .Success = True,
+                    .Message = "Successfully updated position colour",
+                    .Colour = updatedColour
+                }
             Catch ex As Exception
-                Console.WriteLine(ex.Message)
+                Return New OperationResult With {
+                        .Success = False,
+                        .Message = "Failed to update position"
+                }
                 Throw
             End Try
         End Function

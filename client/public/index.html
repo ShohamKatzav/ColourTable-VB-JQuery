@@ -8,15 +8,17 @@
   <link rel="stylesheet" href="style.css" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.bootstrap5.css" />
-  <script type="module" src="/config.js"></script>
+  <!-- <script type="module" src="/config.js"></script> -->
   <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
   <script src="https://code.jquery.com/ui/1.14.1/jquery-ui.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.datatables.net/2.1.8/js/dataTables.js"></script>
   <script src="https://cdn.datatables.net/2.1.8/js/dataTables.bootstrap5.js"></script>
   <script type="module">
+    
     import SERVER_URI from '/config.js';
     const actionUrl = SERVER_URI;
+    let table;
 
     $(document).ready(function () {
       const isValidColor = (color) => {
@@ -24,7 +26,7 @@
         s.color = color;
         return s.color !== '';
       };
-      const table = $('#myTable').DataTable(
+      table = $('#myTable').DataTable(
         {
           columns: [
             { data: 'colourName' },
@@ -214,43 +216,64 @@
 
     $(function () {
       $("#sortable").sortable({
+        start: function (event, ui) {
+          let oldData = table.row(ui.item).data();
+          localStorage.setItem("oldPositionColour", JSON.stringify(oldData));
+        },
         stop: function (event, ui) {
           const $rows = $("#myTable tbody tr");
           const draggedIndex = ui.item.index();
+
           const draggedRow = ui.item;
+            const cells = draggedRow.find("td");
+
+            const rowData = {
+              colourName: cells.eq(0).text().trim(),
+              price: parseFloat(cells.eq(2).text().trim()),
+              viewOrder: parseInt(cells.eq(3).text().trim(), 10),
+              available: cells.eq(4).text().trim() === "true",
+            };
 
           if (draggedIndex === $rows.length - 1) {
             const previousRow = $rows.eq(draggedIndex - 1);
-            const previousViewOrder = parseInt(previousRow.find("td").eq(2).text(), 10);
-            const colourName = draggedRow.find("td").eq(0).text();
+            const previousViewOrder = parseInt(previousRow.find("td").eq(3).text(), 10);
             const newPosition = previousViewOrder + 1;
-            draggedRow.find("td").eq(2).text(newPosition);
-            updateColorPositionInDB(colourName, Number(newPosition));
+
+            updateColorPositionInDB(rowData, newPosition);
           } else {
             const nextRow = $rows.eq(draggedIndex + 1);
-            const nextViewOrder = parseInt(nextRow.find("td").eq(2).text(), 10);
-            draggedRow.find("td").eq(2).text(nextViewOrder);
-            updateColorPositionInDB(draggedRow.find("td").eq(0).text(), Number(draggedRow.find("td").eq(2).text()));
+            const nextViewOrder = parseInt(nextRow.find("td").eq(3).text(), 10);
+            
+            updateColorPositionInDB(rowData, Number(nextViewOrder));
 
             $rows.each(function (index) {
               if (index > draggedIndex) {
-                const colourName = $(this).find("td").eq(0).text();
-                const currentViewOrder = parseInt($(this).find("td").eq(2).text(), 10);
-                const newPosition = currentViewOrder + 1;
-                $(this).find("td").eq(2).text(newPosition);
-                updateColorPositionInDB(colourName, newPosition);
+                
+                const $tds = $(this).find("td");
+
+                const rowData = {
+                  colourName: $tds.eq(0).text().trim(),
+                  price: parseFloat($tds.eq(2).text().trim()),
+                  viewOrder: parseInt($tds.eq(3).text().trim(), 10),
+                  available: $tds.eq(4).text().trim() === "true",
+                };
+                localStorage.setItem("oldPositionColour", JSON.stringify(rowData));
+
+                const newPosition = rowData.viewOrder + 1;
+                updateColorPositionInDB(rowData, newPosition);
               }
             });
           }
         },
       });
     });
-    function updateColorPositionInDB(colourName, newPosition) {
-      const colourData = {
-        ColourName: colourName,
-        ViewOrder: Number(newPosition),
-      };
-      $.ajax({
+    function updateColorPositionInDB(colourData, newPosition) {
+      const oldPositionColour = JSON.parse(localStorage.getItem("oldPositionColour"));
+      const sendColour = {
+        ColourName: colourData.colourName,
+        ViewOrder: newPosition
+      }
+      return $.ajax({
         headers: {
           "Accept": "*/*",
           "Content-Type": "application/json"
@@ -258,7 +281,25 @@
         url: actionUrl + '/position',
         type: 'PUT',
         contentType: 'application/json',
-        data: JSON.stringify(colourData),
+        data: JSON.stringify(sendColour),
+        success: function (response) {
+          console.log(response);
+          let rowIndex = table
+              .rows()
+              .indexes()
+              .toArray()
+              .find(index => table.row(index).data().colourName === colourData.colourName);
+            if (rowIndex !== undefined) {
+              table
+                .row(rowIndex)
+                .data({
+                  colourName: response.colourName,
+                  price: oldPositionColour.price,
+                  viewOrder: response.viewOrder,
+                  available: oldPositionColour.available
+                })
+            }
+        },
         error: function (status, error) {
           $('#errorToast .toast-body').text(error);
           new bootstrap.Toast($('#errorToast')).show();
