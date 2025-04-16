@@ -17,6 +17,7 @@
   <script type="module">
     import SERVER_URI from '/config.js';
     const actionUrl = SERVER_URI;
+    
     $(document).ready(function () {
       const isValidColor = (color) => {
         const s = new Option().style;
@@ -245,7 +246,6 @@
       });
     });
     function updateColorPositionInDB(colourName, newPosition) {
-      const actionUrl = "http://localhost:5000/api/colour" + '/position';
       const colourData = {
         ColourName: colourName,
         ViewOrder: Number(newPosition),
