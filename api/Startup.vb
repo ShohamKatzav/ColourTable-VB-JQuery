@@ -17,7 +17,6 @@ Public Class Startup
 
     Public Sub ConfigureServices(services As IServiceCollection)
         Dim frontendUri = _configuration("FrontendUri")
-        Console.WriteLine(frontendUri)
 
         If String.IsNullOrWhiteSpace(frontendUri) Then
             Throw New InvalidOperationException("FrontendUri is not configured.")
