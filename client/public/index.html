@@ -17,7 +17,7 @@
   <script type="module">
     import SERVER_URI from '/config.js';
     const actionUrl = SERVER_URI;
-    
+
     $(document).ready(function () {
       const isValidColor = (color) => {
         const s = new Option().style;
@@ -255,7 +255,7 @@
           "Accept": "*/*",
           "Content-Type": "application/json"
         },
-        url: actionUrl,
+        url: actionUrl + '/position',
         type: 'PUT',
         contentType: 'application/json',
         data: JSON.stringify(colourData),
