@@ -251,6 +251,7 @@
             updateColorPositionInDB(rowData, newPosition);
 
             $rows.each(function (index) {
+              const $tds = $(this).find("td");
               const rowDataBelow = {
                   colourName: $tds.eq(0).text().trim(),
                   price: parseFloat($tds.eq(2).text().trim()),
