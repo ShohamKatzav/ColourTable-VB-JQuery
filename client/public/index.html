@@ -260,7 +260,7 @@
                 };
               if (index > draggedIndex || rowDataBelow.viewOrder == newPosition && rowDataBelow.colourName != rowData.colourName ) {
                 localStorage.setItem("oldPositionColour", JSON.stringify(rowDataBelow));
-                const newPosition = rowData.rowDataBelow + 1;
+                const newPosition = rowDataBelow.viewOrder + 1;
                 updateColorPositionInDB(rowDataBelow, newPosition);
               }
             });
