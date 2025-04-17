@@ -246,9 +246,7 @@
             const nextRow = $rows.eq(draggedIndex + 1);
             const nextViewOrder = parseInt(nextRow.find("td").eq(3).text(), 10);
 
-
-            let newPosition = draggedIndex > 0 ? nextViewOrder - 1 : nextViewOrder;
-            updateColorPositionInDB(rowData, newPosition);
+            updateColorPositionInDB(rowData, nextViewOrder);
 
             $rows.each(function (index) {
               const $tds = $(this).find("td");
@@ -258,7 +256,7 @@
                   viewOrder: parseInt($tds.eq(3).text().trim(), 10),
                   available: $tds.eq(4).text().trim() === "true",
                 };
-              if (index > draggedIndex || rowDataBelow.viewOrder == newPosition && rowDataBelow.colourName != rowData.colourName ) {
+              if (index > draggedIndex && rowDataBelow.colourName != rowData.colourName ) {
                 localStorage.setItem("oldPositionColour", JSON.stringify(rowDataBelow));
                 const newPosition = rowDataBelow.viewOrder + 1;
                 updateColorPositionInDB(rowDataBelow, newPosition);
