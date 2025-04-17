@@ -259,11 +259,8 @@
                   available: $tds.eq(4).text().trim() === "true",
                 };
               if (index > draggedIndex || rowDataBelow.viewOrder == newPosition && rowDataBelow.colourName != rowData.colourName ) {
-
-                const $tds = $(this).find("td");
                 localStorage.setItem("oldPositionColour", JSON.stringify(rowDataBelow));
-
-                const newPosition = rowData.viewOrder + 1;
+                const newPosition = rowData.rowDataBelow + 1;
                 updateColorPositionInDB(rowDataBelow, newPosition);
               }
             });
