@@ -235,6 +235,7 @@
               available: cells.eq(4).text().trim() === "true",
             };
 
+          // Drag the row to last index
           if (draggedIndex === $rows.length - 1) {
             const previousRow = $rows.eq(draggedIndex - 1);
             const previousViewOrder = parseInt(previousRow.find("td").eq(3).text(), 10);
@@ -245,25 +246,33 @@
             const nextRow = $rows.eq(draggedIndex + 1);
             const nextViewOrder = parseInt(nextRow.find("td").eq(3).text(), 10);
             
-            updateColorPositionInDB(rowData, Number(nextViewOrder));
+            // New row index is in the middle on the list
+            if(draggedIndex > 0)
+              updateColorPositionInDB(rowData, Number(nextViewOrder-1));
 
-            $rows.each(function (index) {
-              if (index > draggedIndex) {
+            // Drag the row to first index
+            else {
+              updateColorPositionInDB(rowData, Number(nextViewOrder));
+
+              $rows.each(function (index) {
+                if (index > draggedIndex) {
                 
-                const $tds = $(this).find("td");
+                  const $tds = $(this).find("td");
 
-                const rowData = {
-                  colourName: $tds.eq(0).text().trim(),
-                  price: parseFloat($tds.eq(2).text().trim()),
-                  viewOrder: parseInt($tds.eq(3).text().trim(), 10),
-                  available: $tds.eq(4).text().trim() === "true",
-                };
-                localStorage.setItem("oldPositionColour", JSON.stringify(rowData));
+                  const rowData = {
+                    colourName: $tds.eq(0).text().trim(),
+                    price: parseFloat($tds.eq(2).text().trim()),
+                    viewOrder: parseInt($tds.eq(3).text().trim(), 10),
+                    available: $tds.eq(4).text().trim() === "true",
+                  };
+                  localStorage.setItem("oldPositionColour", JSON.stringify(rowData));
 
-                const newPosition = rowData.viewOrder + 1;
-                updateColorPositionInDB(rowData, newPosition);
-              }
-            });
+                  const newPosition = rowData.viewOrder + 1;
+                  updateColorPositionInDB(rowData, newPosition);
+                }
+              });
+
+            }
           }
         },
       });
