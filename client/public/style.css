@@ -3,12 +3,9 @@
   body {
     font-size: 16px !important;
   }
-  .dataTable{
-    width: 100% !important;
-    overflow-x: auto !important;
-  }
-  .row {
-    min-width: 100vw !important;
+  tr {
+    touch-action: none;
+    -ms-touch-action: none;
   }
 }
 
