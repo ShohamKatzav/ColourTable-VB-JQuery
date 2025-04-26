@@ -3,13 +3,6 @@
   body {
     font-size: 16px !important;
   }
-  tr {
-    touch-action: none;
-    -ms-touch-action: none;
-  } 
-  button {
-  touch-action: auto !important;
-  }
   .row>* {
     --bs-gutter-x: 5px;
     --bs-gutter-y: 3px;
