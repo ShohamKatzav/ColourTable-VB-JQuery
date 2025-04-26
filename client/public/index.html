@@ -100,7 +100,7 @@
                 .draw();
             }
             else
-              if (retries > 0) setTimeout(() => fetchWithRetry(url, retries - 1), 3000);
+              if (retries > 0) setTimeout(() => fetchWithRetry(url, retries - 1), 10000);
           },
           error: function (xhr, status, error) {
             $('#errorToast .toast-body').text('Failed to get data, retrying in 10 seconds..');
