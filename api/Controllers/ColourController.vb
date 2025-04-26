@@ -49,7 +49,7 @@ Public Class ColourController
 
     <HttpPut>
     Public Function UpdateColour(<FromBody> colour As ColourUpdateDTO) As ActionResult(Of Colour)
-        If colour Is Nothing Then
+        If colour Is Nothing OrElse String.IsNullOrEmpty(colour.ColourName) OrElse String.IsNullOrEmpty(colour.OldColourName) Then
             Return BadRequest("Invalid colour data")
         End If
         Dim result = _colourService.UpdateColour(colour.ColourName, colour.Price, colour.ViewOrder, colour.Available, colour.OldColourName)
