@@ -309,7 +309,7 @@
           } else {
             // The new position of the row is in the first half of the array
             const half = table.rows().count() / 2;
-            if (draggedIndex <= half && nextOrder - draggedIndex + 1 > 2) {
+            if (draggedIndex <= half && nextOrder - draggedIndex > 2) {
               updateColorPositionInDB(rowData, isAsc ? nextOrder - 1 : nextOrder + 1);
               updateOthers(i => i < draggedIndex, isAsc ? -1 : 1);
             } else {
@@ -328,7 +328,6 @@
     });
 
     function updateColorPositionInDB(colourData, newPosition) {
-      const oldPositionColour = JSON.parse(localStorage.getItem("oldPositionColour"));
       const sendColour = {
         ColourName: colourData.colourName,
         ViewOrder: newPosition
@@ -353,9 +352,9 @@
               .row(rowIndex)
               .data({
                 colourName: response.colourName,
-                price: oldPositionColour.price,
+                price: colourData.price,
                 viewOrder: response.viewOrder,
-                available: oldPositionColour.available
+                available: colourData.available
               })
           }
         },
