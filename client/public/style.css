@@ -1,4 +1,4 @@
-@media (max-width: 480px) {
+@media only screen and (max-width: 600px) {
   /* Styles for tablets and below (mobile-friendly) */
   body {
     font-size: 16px !important;
@@ -6,6 +6,35 @@
   tr {
     touch-action: none;
     -ms-touch-action: none;
+  }
+  .row>* {
+    --bs-gutter-x: 5px;
+    --bs-gutter-y: 3px;
+  }
+  .square {
+    width: 70px !important;
+  }
+  .square-noborder {
+    width: 70px !important;
+    line-height: 25px !important;
+  }
+  .scroll-indicator {
+    text-align: center;
+    font-size: 1rem;
+    animation: bounceRight 1s infinite;
+    margin-top: 0.5rem;
+    color: #888;
+  }
+  
+  @keyframes bounceRight {
+    0%, 100% { transform: translateX(0); }
+    50%      { transform: translateX(6px); }
+  }
+}
+
+@media (min-width: 600px) {
+  .scroll-indicator {
+    display: none;
   }
 }
 
@@ -31,7 +60,7 @@
 
 .yellow-background {
   background-color: #fff3cd !important;
-  --bs-table-bg: #fff3cd !important;
+  --bs-table-bg: #f9cb32 !important;
   --bs-table-hover-bg: #e5d96a !important;
 }
 
