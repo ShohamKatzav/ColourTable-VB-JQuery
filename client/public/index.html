@@ -114,6 +114,8 @@
       fetchWithRetry(actionUrl, 2)
 
       table.on('click', 'button', function (e) {
+        e.stopPropagation(); // stop the click from bubbling into drag handlers
+        e.preventDefault();
         let oldData = table.row(e.target.closest('tr')).data();
         if (e.target.innerHTML == 'Delete')
           $.ajax({
