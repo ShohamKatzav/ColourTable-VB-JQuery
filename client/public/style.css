@@ -105,3 +105,7 @@ body {
   height: 4rem;
   color: #007bff;
 }
+
+button {
+  margin: 5px !important;
+}

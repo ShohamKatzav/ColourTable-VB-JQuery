@@ -9,15 +9,18 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.bootstrap5.css" />
+
   <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
   <script src="https://code.jquery.com/ui/1.14.1/jquery-ui.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.datatables.net/2.1.8/js/dataTables.js"></script>
   <script src="https://cdn.datatables.net/2.1.8/js/dataTables.bootstrap5.js"></script>
+
+  <script src="/jquery.ui.touch-punch.js"></script>
+
   <script type="module" src="/config.js"></script>
   <script type="module">
-    
+
     import SERVER_URI from '/config.js';
     const actionUrl = SERVER_URI;
     let table;
@@ -257,6 +260,12 @@
     });
 
     $(function () {
+      // This code will keep the inputs responsive on mobile devices will allow dragging
+      $("#sortable").on("touchend", function (e) {
+        if (["BUTTON", "INPUT", "TEXTAREA", "SELECT"].includes(e.target.tagName)) {
+          simulateMouseEvent(e, "mouseup");
+        }
+      });
       $("#sortable").sortable({
         start: function (e, ui) {
           localStorage.setItem("oldIndex", ui.item.index());
@@ -311,7 +320,7 @@
           } else {
             // The new position of the row is in the first half of the array
             const half = table.rows().count() / 2;
-            if (draggedIndex <= half && nextOrder - draggedIndex > 2) {
+            if (draggedIndex <= half && nextOrder - draggedIndex > 1) {
               updateColorPositionInDB(rowData, isAsc ? nextOrder - 1 : nextOrder + 1);
               updateOthers(i => i < draggedIndex, isAsc ? -1 : 1);
             } else {
