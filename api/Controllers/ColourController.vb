@@ -16,17 +16,17 @@ Public Class ColourController
     End Sub
     
     <HttpGet>
-    Public  Function GetColours() As ActionResult(Of List(Of Colour))
-        Dim colours = _colourService.GetColours()
+    Public Async Function GetColours() As Task(Of ActionResult(Of List(Of Colour)))
+        Dim colours = Await _colourService.GetColours()
         Return Ok(colours)
     End Function
 
     <HttpPost>
-    Public Function AddColour(<FromBody> colour As Colour) As ActionResult(Of Colour)
+    Public Async Function AddColour(<FromBody> colour As Colour) As Task(Of ActionResult(Of Colour))
         If colour Is Nothing Then
             Return BadRequest("Invalid colour data")
         End If
-        Dim newColour = _colourService.AddColour(colour.ColourName, colour.Price, colour.ViewOrder, colour.Available)
+        Dim newColour = Await _colourService.AddColour(colour.ColourName, colour.Price, colour.ViewOrder, colour.Available)
         If newColour.Success Then
             Return Ok(newColour.Colour)
         Else
@@ -35,11 +35,11 @@ Public Class ColourController
     End Function
 
     <HttpDelete>
-    Public Function DeleteColour(<FromBody> colourName As String) As IActionResult
+    Public Async Function DeleteColour(<FromBody> colourName As String) As Task(Of ActionResult)
         If colourName Is Nothing OrElse String.IsNullOrEmpty(colourName) Then
             Return BadRequest("Invalid colour name")
         End If
-        Dim result As Boolean = _colourService.DeleteColour(ColourName)
+        Dim result As Boolean = Await _colourService.DeleteColour(ColourName)
         If result Then
             Return Ok($"Colour '{ColourName}' deleted successfully.")
         Else
@@ -48,11 +48,11 @@ Public Class ColourController
     End Function
 
     <HttpPut>
-    Public Function UpdateColour(<FromBody> colour As ColourUpdateDTO) As ActionResult(Of Colour)
+    Public Async Function UpdateColour(<FromBody> colour As ColourUpdateDTO) As Task(Of ActionResult)
         If colour Is Nothing OrElse String.IsNullOrEmpty(colour.ColourName) OrElse String.IsNullOrEmpty(colour.OldColourName) Then
             Return BadRequest("Invalid colour data")
         End If
-        Dim result = _colourService.UpdateColour(colour.ColourName, colour.Price, colour.ViewOrder, colour.Available, colour.OldColourName)
+        Dim result = Await _colourService.UpdateColour(colour.ColourName, colour.Price, colour.ViewOrder, colour.Available, colour.OldColourName)
         If result.Success Then
             Return Ok(result.Colour)
         Else
@@ -61,11 +61,11 @@ Public Class ColourController
     End Function
 
     <HttpPut("position")>
-    Public Function UpdateColourPosition(<FromBody> colour As ColourPositionUpdateDTO) As IActionResult
+    Public Async Function UpdateColourPosition(<FromBody> colour As ColourPositionUpdateDTO) As Task(Of IActionResult)
         If colour Is Nothing Then
             Return BadRequest("Invalid colour data")
         End If
-        Dim result = _colourService.UpdateColourPosition(colour.ColourName, colour.ViewOrder)
+        Dim result = Await _colourService.UpdateColourPosition(colour.ColourName, colour.ViewOrder)
         If result.Success Then
             Return Ok(result.Colour)
         Else

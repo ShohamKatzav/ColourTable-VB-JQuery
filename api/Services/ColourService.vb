@@ -10,9 +10,9 @@ Namespace Services
             _colourDatabase = colourDatabase
         End Sub
 
-        Public Function GetColours() As List(Of Colour)
+        Public Async Function GetColours() As Task(Of List(Of Colour))
             Try
-                Dim colours = _colourDatabase.GetColours()
+                Dim colours = Await _colourDatabase.GetColoursAsync()
                 Return colours
             Catch ex As Exception
                 Console.WriteLine(ex.Message)
@@ -20,10 +20,10 @@ Namespace Services
             End Try
         End Function
 
-        Public Function AddColour(ColourName As String, Price As Integer,
-                                    ViewOrder As Integer, Available As Boolean) As OperationResult
+        Public Async Function AddColour(ColourName As String, Price As Integer,
+                                    ViewOrder As Integer, Available As Boolean) As Task(Of OperationResult)
             Try
-                Dim Exist As DuplicateColourCheckResult = _colourDatabase.GetColourCount(ColourName, ViewOrder)
+                Dim Exist As DuplicateColourCheckResult = Await _colourDatabase.GetColourCountAsync(ColourName, ViewOrder)
                 If Exist.DuplicateName <> 0 Then
                     Return New OperationResult With {
                         .Success = False,
@@ -45,7 +45,7 @@ Namespace Services
                             .Message = "Invalid Input"
                         }
                 End If
-                Dim colour = _colourDatabase.AddColour(ColourName, Price, ViewOrder, Available)
+                Dim colour = Await _colourDatabase.AddColourAsync(ColourName, Price, ViewOrder, Available)
                 Return New OperationResult With {
                     .Success = True,
                     .Message = "Successfully added",
@@ -57,9 +57,9 @@ Namespace Services
             End Try
         End Function
 
-        Public Function DeleteColour(ColourName As String) As Boolean
+        Public Async Function DeleteColour(ColourName As String) As Task(Of Boolean)
             Try
-                Return _colourDatabase.DeleteColour(ColourName)
+                Return Await _colourDatabase.DeleteColourAsync(ColourName)
             Catch ex As Exception
                 Console.WriteLine(ex.Message)
                 Return False
@@ -67,11 +67,11 @@ Namespace Services
             End Try
         End Function
 
-        Public Function UpdateColour(ColourName As String, Price As Integer,
-                                    ViewOrder As Integer, Available As Boolean, OldColourName As String) As OperationResult
+        Public Async Function UpdateColour(ColourName As String, Price As Integer,
+                                    ViewOrder As Integer, Available As Boolean, OldColourName As String) As Task(Of OperationResult)
             Try
-                Dim Exist As DuplicateColourCheckResult = _colourDatabase.GetColourCount(OldColourName, ViewOrder)
-                Dim Duplicate As DuplicateColourCheckResult = _colourDatabase.GetColourCount(ColourName, ViewOrder, OldColourName)
+                Dim Exist As DuplicateColourCheckResult = Await _colourDatabase.GetColourCountAsync(OldColourName, ViewOrder)
+                Dim Duplicate As DuplicateColourCheckResult = Await _colourDatabase.GetColourCountAsync(ColourName, ViewOrder, OldColourName)
                 If Duplicate.DuplicateName > 0 AndAlso OldColourName <> ColourName Then
                     Return New OperationResult With {
                         .Success = False,
@@ -99,7 +99,7 @@ Namespace Services
                         .Message = "Colour Isn't Exist"
                     }
                 End If
-                Dim updatedColour = _colourDatabase.UpdateColour(ColourName, Price,
+                Dim updatedColour = Await _colourDatabase.UpdateColourAsync(ColourName, Price,
                                                     ViewOrder, Available, OldColourName)
                 Return New OperationResult With {
                     .Success = True,
@@ -112,9 +112,9 @@ Namespace Services
             End Try
         End Function
 
-        Public Function UpdateColourPosition(ColourName As String, ViewOrder As Integer) As OperationResult
+        Public Async Function UpdateColourPosition(ColourName As String, ViewOrder As Integer) As  Task(Of OperationResult)
             Try
-                Dim updatedColour = _colourDatabase.UpdateColourPosition(ColourName, ViewOrder)
+                Dim updatedColour = Await _colourDatabase.UpdateColourPositionAsync(ColourName, ViewOrder)
                 Return New OperationResult With {
                     .Success = True,
                     .Message = "Successfully updated position colour",
