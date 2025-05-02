@@ -29,15 +29,14 @@ Public Class Startup
         services.AddScoped(Of HelloWorldService)()
 
         services.AddCors(Sub(options)
-            options.AddPolicy("AllowSpecificOrigin",
-                Sub(builder)
-                    builder.WithOrigins(frontendUri) _
-                           .AllowAnyHeader() _
-                           .AllowAnyMethod() _
-                           .AllowCredentials()
-                End Sub)
-        End Sub)
-
+                            options.AddPolicy("AllowSpecificOrigin",
+                                Sub(builder)
+                                    builder.WithOrigins(frontendUri) _
+                                            .AllowAnyHeader() _
+                                            .AllowAnyMethod() _
+                                            .AllowCredentials()
+                                End Sub)
+                        End Sub)
         services.AddControllers()
     End Sub
 

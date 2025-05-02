@@ -260,7 +260,7 @@
     });
 
     $(function () {
-      // This code will keep the inputs responsive on mobile devices will allow dragging
+      // This code will keep the inputs responsive on mobile devices while allow dragging
       $("#sortable").on("touchend", function (e) {
         if (["BUTTON", "INPUT", "TEXTAREA", "SELECT"].includes(e.target.tagName)) {
           simulateMouseEvent(e, "mouseup");
@@ -271,7 +271,7 @@
           localStorage.setItem("oldIndex", ui.item.index());
           localStorage.setItem("oldData", JSON.stringify(table.row(ui.item).data()));
         },
-        stop: function (e, ui) {
+        stop: async function (e, ui) {
           // The row return to same position, no change needed
           const oldIndex = +localStorage.getItem("oldIndex"), newIndex = ui.item.index();
           if (oldIndex === newIndex) return;
@@ -292,10 +292,10 @@
             isLast = draggedIndex === $rows.length - 1;
 
           async function sendRequestsWithThrottle(requests, batchSize = 5, delayMs = 200) {
-              for (let i = 0; i < requests.length; i += batchSize) {
-                const batch = requests.slice(i, i + batchSize);
-                await Promise.all(batch.map(req => req()));
-                await new Promise(resolve => setTimeout(resolve, delayMs));
+            for (let i = 0; i < requests.length; i += batchSize) {
+              const batch = requests.slice(i, i + batchSize);
+              await Promise.all(batch.map(req => req()));
+              await new Promise(resolve => setTimeout(resolve, delayMs));
             }
           }
           const pendingUpdates = [];
@@ -310,7 +310,7 @@
                   available: $($a).html().includes("fa-check"),
                 };
                 if (data.colourName !== rowData.colourName)
-                pendingUpdates.push(() => updateColorPositionInDB(data, data.viewOrder + adjust));
+                  pendingUpdates.push(() => updateColorPositionInDB(data, data.viewOrder + adjust));
               }
             });
           }
@@ -318,43 +318,72 @@
           const prevOrder = +$rows.eq(draggedIndex - 1)?.find("td").eq(0).text() || 0;
           const nextOrder = +$rows.eq(draggedIndex + 1)?.find("td").eq(0).text() || 0;
 
-          // The row dragged to the last index
+          const topRow = $('#myTable tbody tr').eq(0);
+          const topRowViewOrder = table.row(topRow).data().viewOrder;
+
+          const bottomRow = $('#myTable tbody tr').eq($rows.length - 1);
+          const bottomRowViewOrder = table.row(bottomRow).data().viewOrder;
+
           if (isLast) {
-            if (isAsc) updateColorPositionInDB(rowData, prevOrder + 1);
-            else if (prevOrder > 1) updateColorPositionInDB(rowData, prevOrder - 1);
-            else {
-              updateColorPositionInDB(rowData, 1);
-              updateOthers(() => true, 1);
-            }
-          }
-          // The row dragged to the first index
-          else if (isFirst) {
-            if (!isAsc) updateColorPositionInDB(rowData, prevOrder + 1);
-            else if (nextOrder > 1) updateColorPositionInDB(rowData, nextOrder - 1);
-            else {
-              updateColorPositionInDB(rowData, 1);
-              updateOthers(() => true, 1);
-            }
-          }
-          else {
-            // The new position of the row is in the first half of the array
-            const half = table.rows().count() / 2;
-            if (draggedIndex <= half && table.row(0).data().ViewOrder > 1) {
-              updateColorPositionInDB(rowData, isAsc ? nextOrder - 1 : nextOrder + 1);
-              updateOthers(i => i < draggedIndex, isAsc ? -1 : 1);
+            if (isAsc) {
+              updateColorPositionInDB(rowData, prevOrder + 1);
+            } else if (prevOrder > 1) {
+              updateColorPositionInDB(rowData, prevOrder - 1);
             } else {
-              // The new position of the row is in the last half of the array
-              if (!isAsc && nextOrder - (table.rows().count() - draggedIndex) < 0) {
-                updateColorPositionInDB(rowData, nextOrder + 1);
-                updateOthers(i => i < draggedIndex, 1);
+              updateColorPositionInDB(rowData, 1);
+              updateOthers(() => true, 1);
+            }
+          }
+
+          else if (isFirst) {
+            if (!isAsc) {
+              updateColorPositionInDB(rowData, nextOrder + 1);
+            } else if (nextOrder > 1) {
+              updateColorPositionInDB(rowData, nextOrder - 1);
+            } else {
+              updateColorPositionInDB(rowData, 1);
+              updateOthers(() => true, 1);
+            }
+          }
+
+          else {
+            const half = table.rows().count() / 2;
+
+            if (draggedIndex <= half) {
+              // Dragged toward top in ascending order
+              if (isAsc) {
+                if (topRowViewOrder > 1) {
+                  updateColorPositionInDB(rowData, nextOrder - 1);
+                  updateOthers(i => i < draggedIndex, -1);
+                } else {
+                  updateColorPositionInDB(rowData, nextOrder);
+                  updateOthers(i => i >= draggedIndex && i <= oldIndex, 1);
+                }
+                // Dragged toward top in descending order
               } else {
+                updateColorPositionInDB(rowData, prevOrder);
+                updateOthers(i => i < draggedIndex, 1);
+              }
+            }
+
+            // Dragged toward bottom in ascending order
+            else if (isAsc) {
+              updateColorPositionInDB(rowData, nextOrder);
+              updateOthers(i => i > draggedIndex, 1);
+            } else
+            // Dragged toward bottom in descending order
+            {
+              if (bottomRowViewOrder > 1) {
                 updateColorPositionInDB(rowData, nextOrder);
-                updateOthers(i => i >= draggedIndex, isAsc ? 1 : -1);
+                updateOthers(i => i > draggedIndex, -1);
+              } else {
+                updateColorPositionInDB(rowData, prevOrder);
+                updateOthers(i => i < draggedIndex, 1);
               }
             }
           }
           if (pendingUpdates.length > 0) {
-            sendRequestsWithThrottle(pendingUpdates);
+            await sendRequestsWithThrottle(pendingUpdates);
           }
         }
       });

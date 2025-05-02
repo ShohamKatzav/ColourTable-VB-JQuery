@@ -97,6 +97,7 @@ Namespace DataAccess
 
                 Catch ex As Exception
                     Console.WriteLine(ex.Message)
+                    Return Nothing
                 End Try
             End Using
         End Function
@@ -130,6 +131,7 @@ Namespace DataAccess
 
                 Catch ex As Exception
                     Console.WriteLine(ex.Message)
+                    Return Nothing
                 End Try
             End Using
         End Function
@@ -190,6 +192,7 @@ Namespace DataAccess
 
                 Catch ex As Exception
                     Console.WriteLine(ex.Message)
+                    Return Nothing
                 End Try
             End Using
         End Function

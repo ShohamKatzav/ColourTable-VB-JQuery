@@ -15,7 +15,7 @@ Imports System.Reflection
 <Assembly: System.Reflection.AssemblyCompanyAttribute("ColoursTable"),  _
  Assembly: System.Reflection.AssemblyConfigurationAttribute("Debug"),  _
  Assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0"),  _
- Assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5bd3a25d871059e42b63e1a233a495c656a8f6fc"),  _
+ Assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f789e15eb3ab5b3ada4706e7fcdd5be7f81233cc"),  _
  Assembly: System.Reflection.AssemblyProductAttribute("ColoursTable"),  _
  Assembly: System.Reflection.AssemblyTitleAttribute("ColoursTable"),  _
  Assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")> 
