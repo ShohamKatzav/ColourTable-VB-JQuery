@@ -12,7 +12,18 @@ Namespace Services
 
         Public Async Function GetColours() As Task(Of List(Of Colour))
             Try
+                Dim sw As New Stopwatch()
+                sw.Start()
                 Dim colours = Await _colourDatabase.GetColoursAsync()
+                sw.Stop()
+                ' Consider it a cold start if it takes more than 20 seconds
+                If sw.ElapsedMilliseconds > 20000
+                    Await Task.Delay(5000)
+                    colours = Await _colourDatabase.GetColoursAsync()
+                End If
+                If colours Is Nothing Then
+                    Throw New Exception("Database returned null")
+                End If
                 Return colours
             Catch ex As Exception
                 Console.WriteLine(ex.Message)

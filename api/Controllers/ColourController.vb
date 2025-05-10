@@ -17,8 +17,16 @@ Public Class ColourController
     
     <HttpGet>
     Public Async Function GetColours() As Task(Of ActionResult(Of List(Of Colour)))
-        Dim colours = Await _colourService.GetColours()
-        Return Ok(colours)
+        Try
+            Dim colours = Await _colourService.GetColours()
+            If colours Is Nothing OrElse colours.Count = 0 Then
+                Return NotFound("No colours found")
+            End If
+            Return Ok(colours)
+        Catch ex As Exception
+        ' If something failed (cold start, DB down), return 503
+            Return StatusCode(503, "Service unavailable or still warming up")
+    End Try
     End Function
 
     <HttpPost>

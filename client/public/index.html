@@ -26,13 +26,6 @@
     let table;
 
     var $loading = $('#loadingDiv').hide();
-    $(document)
-      .ajaxStart(function () {
-        $loading.show();
-      })
-      .ajaxStop(async function () {
-        $loading.hide();
-      });
 
     $(document).ready(function () {
       const isValidColor = (color) => {
@@ -89,24 +82,41 @@
           pageLength: 10,
         });
       function fetchWithRetry(url, retries = 1) {
+        $loading.show();
+
         $.ajax({
           url,
           type: "GET",
           success: function (data) {
             if (data.length > 0) {
+              $loading.hide();
               table.
                 clear()
                 .rows.add(data)
                 .draw();
             }
             else
-              if (retries > 0) setTimeout(() => fetchWithRetry(url, retries - 1), 10000);
+              if (retries > 0)
+                setTimeout(() => fetchWithRetry(url, retries - 1), 3000);
           },
           error: function (xhr, status, error) {
+            if (xhr.status === 503) {
+              $('#warningToast .toast-body').text("Server is still warming up. Please wait...");
+              new bootstrap.Toast($('#warningToast')).show();
+              setTimeout(() => fetchWithRetry(url, retries - 1), 5000);
+              return;
+            }
+            if (xhr.responseText == "No colours found") {
+              $loading.hide();
+              $('#warningToast .toast-body').text("Colors list is empty. Add some colours.");
+              new bootstrap.Toast($('#warningToast')).show();
+              return;
+            }
             $('#errorToast .toast-body').text('Failed to get data, retrying in 10 seconds..');
             new bootstrap.Toast($('#errorToast')).show();
             if (retries > 0) setTimeout(() => fetchWithRetry(url, retries - 1), 10000);
             else {
+              $loading.hide();
               console.error("Getting data failed:", error);
               $('#errorToast .toast-body').text('Possible CORS error or network issue');
               new bootstrap.Toast($('#errorToast')).show();
@@ -117,6 +127,7 @@
       fetchWithRetry(actionUrl, 2)
 
       table.on('click', 'button', function (e) {
+        $loading.show();
         e.stopPropagation(); // stop the click from bubbling into drag handlers
         e.preventDefault();
         let oldData = table.row(e.target.closest('tr')).data();
@@ -127,6 +138,7 @@
             contentType: "application/json",
             data: JSON.stringify(oldData.colourName),
             success: function (data) {
+              $loading.hide();
               table
                 .row($(e.target).closest('tr'))
                 .remove()
@@ -135,6 +147,7 @@
               new bootstrap.Toast($('#successToast')).show();
             },
             error: function (xhr, status, error) {
+              $loading.hide();
               console.error("Delete failed:", error);
               $('#errorToast .toast-body').text(error);
               new bootstrap.Toast($('#errorToast')).show();
@@ -163,6 +176,7 @@
       });
 
       $("#updateButton").click(function (e) {
+        $loading.show();
         e.preventDefault();
         const form = $("#myForm");
         const colourData = {
@@ -182,6 +196,7 @@
           contentType: 'application/json',
           data: JSON.stringify(colourData),
           success: function (response) {
+            $loading.hide();
             $('.update-element').html('Update');
             $('tr').removeClass('yellow-background');
 
@@ -209,6 +224,7 @@
             new bootstrap.Toast($('#successToast')).show();
           },
           error: function (result) {
+            $loading.hide();
             $('#errorToast .toast-body').text(result.responseText);
             new bootstrap.Toast($('#errorToast')).show();
           }
@@ -217,6 +233,7 @@
       })
 
       $("#myForm").submit(function (e) {
+        $loading.show();
         e.preventDefault();
         const form = $(this);
         const colourData = {
@@ -235,6 +252,7 @@
           contentType: 'application/json',
           data: JSON.stringify(colourData),
           success: function (response) {
+            $loading.hide();
             if (!response) {
               $('#errorToast .toast-body').text("Make sure your colour isn't already in the list");
               new bootstrap.Toast($('#errorToast')).show();
@@ -252,6 +270,7 @@
             new bootstrap.Toast($('#successToast')).show();
           },
           error: function (result) {
+            $loading.hide();
             $('#errorToast .toast-body').text(result.responseText);
             new bootstrap.Toast($('#errorToast')).show();
           }
@@ -272,6 +291,7 @@
           localStorage.setItem("oldData", JSON.stringify(table.row(ui.item).data()));
         },
         stop: async function (e, ui) {
+          $loading.show();
           // The row return to same position, no change needed
           const oldIndex = +localStorage.getItem("oldIndex"), newIndex = ui.item.index();
           if (oldIndex === newIndex) return;
@@ -404,6 +424,7 @@
         contentType: 'application/json',
         data: JSON.stringify(sendColour),
         success: function (response) {
+          $loading.hide();
           let rowIndex = table
             .rows()
             .indexes()
@@ -421,6 +442,7 @@
           }
         },
         error: function (status, error) {
+          $loading.hide();
           $('#errorToast .toast-body').text(error);
           new bootstrap.Toast($('#errorToast')).show();
         }
@@ -495,6 +517,13 @@
     <div id="successToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
       <div class="toast-header bg-success text-white">
         <strong class="me-auto">Success</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body"></div>
+    </div>
+    <div id="warningToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header bg-warning text-white">
+        <strong class="me-auto">Warning</strong>
         <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
       </div>
       <div class="toast-body"></div>
