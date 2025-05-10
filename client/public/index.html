@@ -291,11 +291,11 @@
           localStorage.setItem("oldData", JSON.stringify(table.row(ui.item).data()));
         },
         stop: async function (e, ui) {
-          $loading.show();
           // The row return to same position, no change needed
           const oldIndex = +localStorage.getItem("oldIndex"), newIndex = ui.item.index();
           if (oldIndex === newIndex) return;
 
+          $loading.show();
           const $rows = $("#myTable tbody tr"), draggedRow = ui.item;
           const [viewOrder, colourName, , priceCell, availableCell] = draggedRow.find("td").toArray();
           const rowData = {
